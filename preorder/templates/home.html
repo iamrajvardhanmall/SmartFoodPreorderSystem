@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Food Stall — Home{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="text-center py-5 mb-4 bg-white rounded-4 shadow-sm">
+  <i class="bi bi-shop text-success" style="font-size: 3.5rem;"></i>
+  <h2 class="fw-bold mt-2">Smart Food Pre-Ordering System</h2>
+  <p class="text-muted">
+    Order ahead from any food stall on campus. Skip the queue. Pick up at your slot.
+  </p>
+  <div class="d-flex justify-content-center gap-3 mt-3">
+    <a href="{% url 'register' %}" class="btn btn-success btn-lg px-4">
+      <i class="bi bi-person-plus"></i> Register
+    </a>
+    <a href="{% url 'login' %}" class="btn btn-outline-success btn-lg px-4">
+      <i class="bi bi-box-arrow-in-right"></i> Login
+    </a>
+  </div>
+</div>
+
+<!-- All Stalls Section -->
+{% if stalls %}
+<h5 class="fw-bold mb-3"><i class="bi bi-shop-window text-success"></i> Food Stalls on Campus</h5>
+<div class="row g-4">
+  {% for stall in stalls %}
+  <div class="col-sm-6 col-md-4">
+    <div class="card h-100 border-0 shadow-sm rounded-4">
+      {% if stall.image %}
+        <img src="{{ stall.image.url }}" class="card-img-top rounded-top-4"
+             alt="{{ stall.name }}" style="height:150px;object-fit:cover;">
+      {% else %}
+        <div class="d-flex justify-content-center align-items-center bg-light rounded-top-4"
+             style="height:150px;">
+          <i class="bi bi-shop text-secondary" style="font-size:3rem;opacity:0.4;"></i>
+        </div>
+      {% endif %}
+      <div class="card-body">
+        <h6 class="fw-bold">{{ stall.name }}</h6>
+        {% if stall.location %}
+          <p class="text-muted small mb-1">
+            <i class="bi bi-geo-alt-fill text-success"></i> {{ stall.location }}
+          </p>
+        {% endif %}
+        <p class="text-muted small">{{ stall.description|truncatechars:70 }}</p>
+        <small class="text-success fw-semibold">
+          <i class="bi bi-egg-fried"></i> {{ stall.available_items_count }} item(s) available
+        </small>
+      </div>
+      <div class="card-footer bg-white border-0">
+        <a href="{% url 'login' %}" class="btn btn-outline-success btn-sm w-100">
+          Login to Order
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-shop-window" style="font-size:3rem;"></i>
+  <p class="mt-2">Stalls coming soon. <a href="{% url 'login' %}">Admin login</a></p>
+</div>
+{% endif %}
+
+{% endblock %}
+<!-- Hero Section -->
+<div class="text-center py-5 px-3 rounded-4 mb-4"
+     style="background: linear-gradient(135deg, #198754 0%, #20c997 100%); color: white;">
+  <h1 class="display-5 fw-bold"><i class="bi bi-shop-window"></i> Smart Food Stall</h1>
+  <p class="lead mt-3 mb-4">
+    Skip the queue. Pre-order your food before break time and pick it up instantly.
+  </p>
+  <a href="{% url 'register' %}" class="btn btn-warning btn-lg me-2">
+    <i class="bi bi-person-plus"></i> Register Now
+  </a>
+  <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
+    <i class="bi bi-box-arrow-in-right"></i> Login
+  </a>
+</div>
+
+<!-- Feature Cards -->
+<div class="row g-4 mt-2">
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm text-center p-3">
+      <div class="card-body">
+        <i class="bi bi-clock-history text-success" style="font-size: 2.5rem;"></i>
+        <h5 class="card-title mt-3">Save Time</h5>
+        <p class="card-text text-muted">
+          Pre-order food before your break. No waiting in line — just pick up and go.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm text-center p-3">
+      <div class="card-body">
+        <i class="bi bi-people text-primary" style="font-size: 2.5rem;"></i>
+        <h5 class="card-title mt-3">Reduce Crowds</h5>
+        <p class="card-text text-muted">
+          Time-slotted ordering distributes crowd evenly across break periods.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm text-center p-3">
+      <div class="card-body">
+        <i class="bi bi-bar-chart-line text-warning" style="font-size: 2.5rem;"></i>
+        <h5 class="card-title mt-3">Smart Analytics</h5>
+        <p class="card-text text-muted">
+          The stall knows what to prepare in advance, reducing food waste.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

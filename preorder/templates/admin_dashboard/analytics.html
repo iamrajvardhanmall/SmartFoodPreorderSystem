@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block title %}Demand Analytics — Smart Food Stall{% endblock %}
+
+{% block extra_css %}
+<style>
+  .prediction-card { border-left: 4px solid #198754; }
+  .prediction-card.high { border-left-color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0">
+    <i class="bi bi-bar-chart-line text-success"></i> Demand Analytics
+  </h4>
+  <span class="text-muted small">Showing data: {{ week_ago }} → {{ today }}</span>
+</div>
+
+<div class="row g-4">
+
+  <!-- Chart: Orders per food item -->
+  <div class="col-md-7">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-0 pt-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-graph-up text-primary"></i> Orders Per Item (Last 7 Days)
+        </h5>
+      </div>
+      <div class="card-body">
+        <canvas id="demandChart" height="250"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demand Prediction -->
+  <div class="col-md-5">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-0 pt-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-lightning-charge text-warning"></i> AI Demand Prediction
+        </h5>
+        <small class="text-muted">Based on 7-day moving average</small>
+      </div>
+      <div class="card-body">
+        {% for pred in predictions %}
+        <div class="card mb-2 border prediction-card {% if pred.high_demand %}high{% endif %}">
+          <div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-semibold small">{{ pred.food }}</span>
+              {% if pred.high_demand %}
+                <span class="badge bg-danger">⚡ High Demand</span>
+              {% else %}
+                <span class="badge bg-success">Normal</span>
+              {% endif %}
+            </div>
+            <small class="text-muted">Avg: {{ pred.avg_per_day }} orders/day</small>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-muted small">Not enough data yet.</p>
+        {% endfor %}
+
+        <div class="alert alert-info mt-3 small">
+          <i class="bi bi-info-circle"></i>
+          <strong>Prediction Formula:</strong><br>
+          Predicted demand = Total orders in last 7 days ÷ 7
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slot Occupancy Table -->
+  <div class="col-12">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-0 pt-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-clock-history text-success"></i> Current Slot Occupancy
+        </h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Time Slot</th>
+              <th>Max Capacity</th>
+              <th>Orders</th>
+              <th>Remaining</th>
+              <th>Occupancy</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for slot in slot_data %}
+            <tr>
+              <td class="fw-semibold">{{ slot.slot_name }}</td>
+              <td>{{ slot.max_capacity }}</td>
+              <td>{{ slot.current_orders }}</td>
+              <td>{{ slot.max_capacity|subtract:slot.current_orders }}</td>
+              <td style="min-width:160px;">
+                {% with pct=slot.current_orders|percentage:slot.max_capacity %}
+                <div class="progress" style="height:10px;">
+                  <div class="progress-bar
+                        {% if pct >= 100 %}bg-danger{% elif pct >= 70 %}bg-warning{% else %}bg-success{% endif %}"
+                       style="width:{{ pct }}%;"></div>
+                </div>
+                <small>{{ pct }}%</small>
+                {% endwith %}
+              </td>
+              <td>
+                {% if slot.is_full %}
+                  <span class="badge bg-danger">Full</span>
+                {% elif slot.is_peak %}
+                  <span class="badge bg-warning text-dark">High Demand</span>
+                {% else %}
+                  <span class="badge bg-success">Available</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-muted text-center py-3">No slots configured.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Raw orders by item -->
+  <div class="col-12">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-0 pt-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-table text-success"></i> Orders by Food Item (Last 7 Days)
+        </h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-striped align-middle mb-0">
+          <thead class="table-light">
+            <tr><th>Food Item</th><th>Total Orders</th></tr>
+          </thead>
+          <tbody>
+            {% for row in orders_by_item %}
+            <tr>
+              <td>{{ row.food_item__name }}</td>
+              <td><span class="badge bg-primary fs-6">{{ row.total }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2" class="text-muted text-center py-3">No orders in the last 7 days.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart: Orders per stall -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-0 pt-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-shop text-success"></i> Orders Per Stall (Last 7 Days)
+        </h5>
+      </div>
+      <div class="card-body">
+        <canvas id="stallDemandChart" height="250"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stall breakdown table -->
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-0 pt-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-table text-success"></i> Orders by Stall (Last 7 Days)
+        </h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Stall</th>
+              <th>Total Orders</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in orders_by_stall %}
+            <tr>
+              <td class="fw-semibold">
+                <i class="bi bi-shop-window text-success"></i>
+                {{ row.food_item__stall__name|default:"No Stall" }}
+              </td>
+              <td><span class="badge bg-success fs-6">{{ row.total }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2" class="text-muted text-center py-3">No stall data yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+  // ── Orders per food item chart ───────────────────────────────────
+  const labels = {{ chart_labels|safe }};
+  const values = {{ chart_values|safe }};
+
+  const ctx = document.getElementById('demandChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Total Orders (Last 7 Days)',
+        data: values,
+        backgroundColor: [
+          '#198754', '#0d6efd', '#ffc107', '#dc3545',
+          '#20c997', '#fd7e14', '#6f42c1', '#0dcaf0'
+        ],
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} orders` } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: 'Number of Orders' } },
+        x: { title: { display: true, text: 'Food Items' } }
+      }
+    }
+  });
+
+  // ── Orders per stall chart ───────────────────────────────────────
+  const stallLabels = {{ stall_chart_labels|safe }};
+  const stallValues = {{ stall_chart_values|safe }};
+
+  const stallCtx = document.getElementById('stallDemandChart').getContext('2d');
+  new Chart(stallCtx, {
+    type: 'bar',
+    data: {
+      labels: stallLabels,
+      datasets: [{
+        label: 'Orders by Stall (Last 7 Days)',
+        data: stallValues,
+        backgroundColor: ['#198754', '#0d6efd', '#ffc107', '#dc3545', '#20c997', '#fd7e14'],
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y} orders` } }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: 'Number of Orders' } },
+        x: { title: { display: true, text: 'Stalls' } }
+      }
+    }
+  });
+</script>
+{% endblock %}
+

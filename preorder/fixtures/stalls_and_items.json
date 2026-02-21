@@ -1,0 +1,163 @@
+[
+  {
+    "model": "preorder.foodstall",
+    "pk": 1,
+    "fields": {
+      "name": "Stall A — South Indian",
+      "description": "Authentic dosas, idlis, vadas and filter coffee.",
+      "location": "Block A, Ground Floor, Near Main Entrance",
+      "is_active": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.foodstall",
+    "pk": 2,
+    "fields": {
+      "name": "Stall B — North Indian",
+      "description": "Parathas, rajma rice, chole bhature and lassi.",
+      "location": "Block B, First Floor, Near Library",
+      "is_active": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.foodstall",
+    "pk": 3,
+    "fields": {
+      "name": "Stall C — Snacks & Beverages",
+      "description": "Sandwiches, rolls, momos, fresh juices and cold drinks.",
+      "location": "Block C, Ground Floor, Near Sports Ground",
+      "is_active": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 1,
+    "fields": {
+      "stall": 1,
+      "name": "Masala Dosa",
+      "description": "Crispy dosa with spiced potato filling, sambhar and chutney.",
+      "price": "35.00",
+      "available_qty": 50,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 2,
+    "fields": {
+      "stall": 1,
+      "name": "Idli (3 pcs)",
+      "description": "Soft steamed rice cakes served with sambhar.",
+      "price": "20.00",
+      "available_qty": 60,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 3,
+    "fields": {
+      "stall": 2,
+      "name": "Aloo Paratha",
+      "description": "Stuffed whole wheat flatbread with spiced potato filling.",
+      "price": "30.00",
+      "available_qty": 40,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 4,
+    "fields": {
+      "stall": 2,
+      "name": "Rajma Rice",
+      "description": "Kidney bean curry with steamed basmati rice.",
+      "price": "45.00",
+      "available_qty": 30,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 5,
+    "fields": {
+      "stall": 3,
+      "name": "Veg Sandwich",
+      "description": "Toasted sandwich with fresh veggies and green chutney.",
+      "price": "25.00",
+      "available_qty": 50,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 6,
+    "fields": {
+      "stall": 3,
+      "name": "Fresh Lime Soda",
+      "description": "Chilled fresh lime with soda, sweet or salted.",
+      "price": "15.00",
+      "available_qty": 80,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 1,
+    "fields": {
+      "slot_name": "10:00 AM - 10:15 AM",
+      "max_capacity": 30,
+      "current_orders": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 2,
+    "fields": {
+      "slot_name": "10:15 AM - 10:30 AM",
+      "max_capacity": 30,
+      "current_orders": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 3,
+    "fields": {
+      "slot_name": "12:30 PM - 12:45 PM",
+      "max_capacity": 40,
+      "current_orders": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 4,
+    "fields": {
+      "slot_name": "12:45 PM - 01:00 PM",
+      "max_capacity": 40,
+      "current_orders": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 5,
+    "fields": {
+      "slot_name": "03:30 PM - 03:45 PM",
+      "max_capacity": 25,
+      "current_orders": 0,
+      "is_active": true
+    }
+  }
+]

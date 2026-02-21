@@ -1,0 +1,124 @@
+[
+  {
+    "model": "preorder.fooditem",
+    "pk": 1,
+    "fields": {
+      "name": "Veg Biryani",
+      "description": "Fragrant basmati rice cooked with mixed vegetables and spices.",
+      "price": "40.00",
+      "available_qty": 50,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 2,
+    "fields": {
+      "name": "Masala Dosa",
+      "description": "Crispy rice crepe filled with spiced potato filling.",
+      "price": "25.00",
+      "available_qty": 40,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 3,
+    "fields": {
+      "name": "Bread Omelette",
+      "description": "Toasted bread with spicy egg omelette.",
+      "price": "20.00",
+      "available_qty": 60,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 4,
+    "fields": {
+      "name": "Samosa (2 pcs)",
+      "description": "Crispy fried pastry filled with spiced potatoes and peas.",
+      "price": "10.00",
+      "available_qty": 100,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 5,
+    "fields": {
+      "name": "Chai",
+      "description": "Hot spiced Indian tea.",
+      "price": "8.00",
+      "available_qty": 200,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.fooditem",
+    "pk": 6,
+    "fields": {
+      "name": "Cold Coffee",
+      "description": "Chilled blended coffee with milk and sugar.",
+      "price": "30.00",
+      "available_qty": 30,
+      "is_available": true,
+      "image": ""
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 1,
+    "fields": {
+      "slot_name": "10:30 AM - 10:45 AM",
+      "max_capacity": 30,
+      "current_orders": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 2,
+    "fields": {
+      "slot_name": "11:00 AM - 11:15 AM",
+      "max_capacity": 30,
+      "current_orders": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 3,
+    "fields": {
+      "slot_name": "01:00 PM - 01:15 PM",
+      "max_capacity": 50,
+      "current_orders": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 4,
+    "fields": {
+      "slot_name": "01:15 PM - 01:30 PM",
+      "max_capacity": 50,
+      "current_orders": 0,
+      "is_active": true
+    }
+  },
+  {
+    "model": "preorder.timeslot",
+    "pk": 5,
+    "fields": {
+      "slot_name": "03:30 PM - 03:45 PM",
+      "max_capacity": 25,
+      "current_orders": 0,
+      "is_active": true
+    }
+  }
+]

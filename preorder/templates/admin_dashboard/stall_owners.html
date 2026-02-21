@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Stall Owners — Smart Food Stall{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0">
+    <i class="bi bi-person-badge text-success"></i> Stall Owner Accounts
+  </h4>
+  <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addOwnerModal">
+    <i class="bi bi-plus-circle"></i> Add Stall Owner
+  </button>
+</div>
+
+<!-- Owners Table -->
+{% if owners %}
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-success">
+        <tr>
+          <th>Stall Code</th>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Assigned Stall</th>
+          <th>Stall Location</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for owner in owners %}
+        <tr>
+          <td>
+            <span class="badge bg-success fs-6 px-3">{{ owner.stall_code }}</span>
+          </td>
+          <td class="fw-semibold"><i class="bi bi-person-circle text-muted"></i> {{ owner.user.username }}</td>
+          <td>{{ owner.user.first_name }} {{ owner.user.last_name }}</td>
+          <td>
+            <span class="badge bg-primary">
+              <i class="bi bi-shop-window"></i> {{ owner.stall.name }}
+            </span>
+          </td>
+          <td><small class="text-muted">{{ owner.stall.location|default:"—" }}</small></td>
+          <td>
+            <form method="POST"
+                  action="{% url 'delete_stall_owner' owner.id %}"
+                  class="d-inline"
+                  onsubmit="return confirm('Delete owner {{ owner.user.username }}? This cannot be undone.')">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash"></i> Remove
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-info rounded-4">
+  <i class="bi bi-info-circle"></i>
+  No stall owners created yet. Click <strong>Add Stall Owner</strong> to get started.
+</div>
+{% endif %}
+
+<!-- Info card -->
+<div class="card border-success border-0 shadow-sm rounded-4 bg-light">
+  <div class="card-body">
+    <h6 class="fw-bold text-success"><i class="bi bi-lightbulb"></i> How Stall Owner Accounts Work</h6>
+    <ul class="mb-0 small text-muted">
+      <li>Each stall owner is assigned to one specific food stall.</li>
+      <li>A unique <strong>5-digit Stall Code</strong> is auto-generated as their owner ID.</li>
+      <li>They log in with their username &amp; password to view all orders placed at their stall.</li>
+      <li>They can mark orders as <em>Completed</em> or <em>Cancelled</em> directly.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Add Owner Modal -->
+<div class="modal fade" id="addOwnerModal" tabindex="-1">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content rounded-4 border-0">
+      <div class="modal-header bg-success text-white rounded-top-4">
+        <h5 class="modal-title">
+          <i class="bi bi-person-plus"></i> Create Stall Owner Account
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          {% if form.errors %}
+          <div class="alert alert-danger small">
+            {% for field in form %}{% for error in field.errors %}<div>{{ field.label }}: {{ error }}</div>{% endfor %}{% endfor %}
+            {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Assign to Stall</label>
+            {{ form.stall }}
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label fw-semibold">First Name</label>
+              {{ form.first_name }}
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label fw-semibold">Last Name</label>
+              {{ form.last_name }}
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Username (for login)</label>
+            {{ form.username }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Password</label>
+            {{ form.password }}
+          </div>
+          <div class="alert alert-info small mb-0">
+            <i class="bi bi-key"></i>
+            A <strong>5-digit Stall Code</strong> will be auto-generated and shown in the table.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-person-check"></i> Create Owner
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% if form.errors %}
+<script>
+  // Re-open modal if there were form errors
+  document.addEventListener('DOMContentLoaded', function () {
+    new bootstrap.Modal(document.getElementById('addOwnerModal')).show();
+  });
+</script>
+{% endif %}
+
+{% endblock %}

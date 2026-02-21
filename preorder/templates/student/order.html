@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static custom_filters %}
+
+{% block title %}Place Order — Smart Food Stall{% endblock %}
+
+{% block extra_css %}
+<style>
+  .slot-badge { font-size: 0.7rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card border-0 shadow rounded-4">
+      <div class="card-body p-4">
+
+        <h4 class="fw-bold mb-4">
+          <i class="bi bi-cart-plus text-success"></i> Place Your Order
+        </h4>
+
+        <form method="POST" id="orderForm" novalidate>
+          {% csrf_token %}
+
+          <!-- Step 1: Filter by Stall (JS-only, not a model field) -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">
+              <i class="bi bi-shop text-success"></i> Filter by Stall
+              <span class="text-muted small fw-normal">(optional)</span>
+            </label>
+            <select id="stallFilter" class="form-select">
+              <option value="all">— Show All Stalls —</option>
+              {% for s in stalls_js %}
+              <option value="{{ s.id }}">{{ s.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Step 2: Food Item (filtered by JS) -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Food Item</label>
+            {{ form.food_item }}
+            <small class="text-muted">Format: [Stall Name] Item — ₹Price</small>
+            {% if form.food_item.errors %}
+              <div class="text-danger small">{{ form.food_item.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Quantity -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Quantity</label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}
+              <div class="text-danger small">{{ form.quantity.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Time Slot with live capacity info -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">
+              Time Slot
+              <span class="text-muted small fw-normal">(Select your preferred pickup time)</span>
+            </label>
+            {{ form.time_slot }}
+            {% if form.time_slot.errors %}
+              <div class="text-danger small">{{ form.time_slot.errors.0 }}</div>
+            {% endif %}
+
+            <!-- Slot capacity indicator (populated by JS) -->
+            <div id="slotInfo" class="mt-2 d-none">
+              <div class="progress mb-1" style="height: 8px;">
+                <div id="slotProgressBar" class="progress-bar" style="width: 0%;"></div>
+              </div>
+              <small id="slotInfoText" class="text-muted"></small>
+            </div>
+          </div>
+
+          <!-- Special Instructions -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">
+              Special Instructions
+              <span class="text-muted small fw-normal">(optional)</span>
+            </label>
+            {{ form.special_instructions }}
+          </div>
+
+          <div class="d-grid mt-2">
+            <button type="submit" class="btn btn-success btn-lg" id="submitBtn">
+              <i class="bi bi-check-circle"></i> Confirm Order
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Pass data from Django to JavaScript -->
+<script>
+  const SLOT_DATA      = {{ slots|safe }};
+  const FOOD_ITEMS_JS  = {{ food_items_js|safe }};
+  const STALLS_JS      = {{ stalls_js|safe }};
+</script>
+<script src="{% static 'js/order.js' %}"></script>
+{% endblock %}

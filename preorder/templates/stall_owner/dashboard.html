@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ stall.name }} — Stall Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="fw-bold mb-0">
+      <i class="bi bi-shop-window text-success"></i> {{ stall.name }}
+    </h4>
+    <small class="text-muted">
+      <i class="bi bi-geo-alt"></i> {{ stall.location|default:"Location not set" }}
+    </small>
+  </div>
+  <div class="text-end">
+    <div class="badge bg-success fs-6 px-3 py-2">
+      <i class="bi bi-person-badge"></i>
+      Stall Code: <span class="fw-bold">{{ owner.stall_code }}</span>
+    </div>
+    <br>
+    <small class="text-muted">
+      Owner: {{ owner.user.first_name }} {{ owner.user.last_name }}
+    </small>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-4">
+    <div class="card border-0 shadow-sm text-center p-3 bg-primary text-white rounded-4">
+      <h2 class="fw-bold">{{ today_count }}</h2>
+      <p class="mb-0 small"><i class="bi bi-calendar-day"></i> Orders Today</p>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card border-0 shadow-sm text-center p-3 bg-warning text-dark rounded-4">
+      <h2 class="fw-bold">{{ pending_count }}</h2>
+      <p class="mb-0 small"><i class="bi bi-hourglass-split"></i> Pending</p>
+    </div>
+  </div>
+  <div class="col-sm-4">
+    <div class="card border-0 shadow-sm text-center p-3 bg-success text-white rounded-4">
+      <h2 class="fw-bold">&#8377;{{ revenue_today }}</h2>
+      <p class="mb-0 small"><i class="bi bi-currency-rupee"></i> Revenue Today</p>
+    </div>
+  </div>
+</div>
+
+<!-- Status Filter Tabs -->
+<ul class="nav nav-pills mb-3">
+  <li class="nav-item">
+    <a class="nav-link {% if status_filter == 'all' %}active{% endif %}"
+       href="{% url 'stall_owner_dashboard' %}">All</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if status_filter == 'Pending' %}active{% endif %}"
+       href="?status=Pending">
+      <i class="bi bi-hourglass-split"></i> Pending
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if status_filter == 'Completed' %}active{% endif %}"
+       href="?status=Completed">
+      <i class="bi bi-check-circle"></i> Completed
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if status_filter == 'Cancelled' %}active{% endif %}"
+       href="?status=Cancelled">
+      <i class="bi bi-x-circle"></i> Cancelled
+    </a>
+  </li>
+</ul>
+
+<!-- Orders Table -->
+{% if orders %}
+<div class="card border-0 shadow-sm rounded-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-success">
+        <tr>
+          <th>Order #</th>
+          <th>Student</th>
+          <th>Food Item</th>
+          <th>Qty</th>
+          <th>Slot</th>
+          <th>Total</th>
+          <th>Time</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td class="fw-bold text-muted">#{{ order.id }}</td>
+          <td>
+            <span class="fw-semibold">{{ order.user.first_name }} {{ order.user.last_name }}</span><br>
+            <small class="text-muted">@{{ order.user.username }}</small>
+          </td>
+          <td>{{ order.food_item.name }}</td>
+          <td>{{ order.quantity }}</td>
+          <td><small>{{ order.time_slot.slot_name }}</small></td>
+          <td class="fw-bold text-success">&#8377;{{ order.total_price }}</td>
+          <td><small class="text-muted">{{ order.order_time|date:"d M, g:i A" }}</small></td>
+          <td>
+            {% if order.status == 'Pending' %}
+              <span class="badge bg-warning text-dark">Pending</span>
+            {% elif order.status == 'Completed' %}
+              <span class="badge bg-success">Completed</span>
+            {% else %}
+              <span class="badge bg-danger">Cancelled</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if order.status == 'Pending' %}
+            <form method="POST"
+                  action="{% url 'stall_owner_update_order' order.id %}"
+                  class="d-inline">
+              {% csrf_token %}
+              <button name="status" value="Completed"
+                      class="btn btn-success btn-sm"
+                      title="Mark Completed">
+                <i class="bi bi-check2"></i>
+              </button>
+              <button name="status" value="Cancelled"
+                      class="btn btn-outline-danger btn-sm ms-1"
+                      onclick="return confirm('Cancel order #{{ order.id }}?')"
+                      title="Cancel Order">
+                <i class="bi bi-x"></i>
+              </button>
+            </form>
+            {% else %}
+              <span class="text-muted small">&mdash;</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-bag-x" style="font-size: 3rem;"></i>
+  <h5 class="mt-3">No orders found</h5>
+  {% if status_filter != 'all' %}
+  <a href="{% url 'stall_owner_dashboard' %}" class="btn btn-outline-success btn-sm mt-2">View All Orders</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

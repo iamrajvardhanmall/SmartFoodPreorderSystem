@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Food Stalls — Smart Food Stall{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0"><i class="bi bi-shop text-success"></i> Manage Food Stalls</h4>
+  <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addStallModal">
+    <i class="bi bi-plus-circle"></i> Add Stall
+  </button>
+</div>
+
+<!-- Stalls Cards -->
+<div class="row g-4 mb-4">
+  {% for stall in stalls %}
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm rounded-4 h-100">
+      {% if stall.image %}
+        <img src="{{ stall.image.url }}" class="card-img-top rounded-top-4"
+             style="height:130px;object-fit:cover;" alt="{{ stall.name }}">
+      {% else %}
+        <div class="d-flex justify-content-center align-items-center bg-light rounded-top-4"
+             style="height:130px;">
+          <i class="bi bi-shop text-secondary" style="font-size:2.5rem;opacity:0.4;"></i>
+        </div>
+      {% endif %}
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <h6 class="fw-bold mb-1">{{ stall.name }}</h6>
+          {% if stall.is_active %}
+            <span class="badge bg-success">Active</span>
+          {% else %}
+            <span class="badge bg-secondary">Inactive</span>
+          {% endif %}
+        </div>
+        {% if stall.location %}
+          <p class="text-muted small mb-1">
+            <i class="bi bi-geo-alt-fill"></i> {{ stall.location }}
+          </p>
+        {% endif %}
+        <p class="text-muted small">{{ stall.description|truncatechars:60 }}</p>
+        <p class="small text-success fw-semibold mb-0">
+          <i class="bi bi-egg-fried"></i> {{ stall.available_items_count }} item(s) available
+        </p>
+      </div>
+      <div class="card-footer bg-white border-0 d-flex gap-2">
+        <a href="{% url 'edit_stall' stall.id %}" class="btn btn-outline-primary btn-sm flex-fill">
+          <i class="bi bi-pencil"></i> Edit
+        </a>
+        <!-- Filter food items by this stall -->
+        <a href="{% url 'manage_food' %}?stall={{ stall.id }}"
+           class="btn btn-outline-success btn-sm flex-fill">
+          <i class="bi bi-egg-fried"></i> Items
+        </a>
+        <form method="POST" action="{% url 'delete_stall' stall.id %}"
+              onsubmit="return confirm('Delete stall {{ stall.name }}? All its food items will also be removed.')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger btn-sm">
+            <i class="bi bi-trash"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5 text-muted">
+    <i class="bi bi-shop-window" style="font-size:3rem;"></i>
+    <p class="mt-2">No stalls yet. Add your first stall!</p>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Add Stall Modal -->
+<div class="modal fade" id="addStallModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content rounded-4 border-0">
+      <div class="modal-header bg-success text-white rounded-top-4">
+        <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Add Food Stall</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Stall Name</label>
+            {{ form.name }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Location on Campus</label>
+            {{ form.location }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Description</label>
+            {{ form.description }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Stall Image (optional)</label>
+            {{ form.image }}
+          </div>
+          <div class="form-check">
+            {{ form.is_active }}
+            <label class="form-check-label">Active (visible to students)</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-save"></i> Save Stall
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

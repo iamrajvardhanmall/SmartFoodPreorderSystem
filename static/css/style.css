@@ -1,0 +1,98 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main.container {
+  flex: 1;
+}
+
+.navbar-brand {
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+}
+
+.card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.food-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+}
+
+.progress {
+  border-radius: 50px;
+  background-color: #e9ecef;
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #198754;
+  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.btn {
+  border-radius: 8px;
+}
+
+.btn-success {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.btn-success:hover {
+  background-color: #157347;
+  border-color: #146c43;
+}
+
+.slot-badge {
+  font-size: 0.65rem;
+  letter-spacing: 0.3px;
+}
+.table th {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.alert-success { background-color: #d1e7dd; border-color: #a3cfbb; }
+.alert-warning  { background-color: #fff3cd; border-color: #ffda6a; }
+.alert-danger   { background-color: #f8d7da; border-color: #f1aeb5; }
+.alert-info     { background-color: #cff4fc; border-color: #9eeaf9; }
+
+footer {
+  margin-top: auto;
+}
+
+.rounded-4  { border-radius: 12px !important; }
+.rounded-top-4  { border-top-left-radius: 12px !important;
+                   border-top-right-radius: 12px !important; }
+
+#slotInfo .progress {
+  height: 6px;
+}
+
+.prediction-card {
+  border-left: 4px solid #198754;
+  border-radius: 8px;
+}
+
+.prediction-card.high {
+  border-left-color: #dc3545;
+}
+
+@media (max-width: 576px) {
+  .card-body h2 { font-size: 1.5rem; }
+  .display-5  { font-size: 1.8rem; }
+}

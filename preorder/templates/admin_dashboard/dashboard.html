@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Admin Dashboard — Smart Food Stall{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0"><i class="bi bi-speedometer2 text-success"></i> Admin Dashboard</h4>
+  <span class="text-muted small">{% now "l, d F Y" %}</span>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-3">
+    <div class="card border-0 shadow-sm text-center p-3 rounded-4 bg-primary text-white">
+      <h3 class="fw-bold">{{ total_orders_today }}</h3>
+      <p class="mb-0 small"><i class="bi bi-cart4"></i> Orders Today</p>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="card border-0 shadow-sm text-center p-3 rounded-4 bg-success text-white">
+      <h3 class="fw-bold">₹{{ revenue_today }}</h3>
+      <p class="mb-0 small"><i class="bi bi-currency-rupee"></i> Revenue Today</p>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="card border-0 shadow-sm text-center p-3 rounded-4 bg-warning text-dark">
+      <h3 class="fw-bold">{{ pending_orders }}</h3>
+      <p class="mb-0 small"><i class="bi bi-hourglass-split"></i> Pending Orders</p>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="card border-0 shadow-sm text-center p-3 rounded-4 bg-info text-white">
+      <h3 class="fw-bold">{{ all_slots.count }}</h3>
+      <p class="mb-0 small"><i class="bi bi-clock"></i> Active Slots</p>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Recent Orders Table -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-0 pt-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-receipt-cutoff text-success"></i> Recent Orders
+        </h5>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>#</th>
+              <th>Student</th>
+              <th>Food Item</th>
+              <th>Slot</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in recent_orders %}
+            <tr>
+              <td class="text-muted small">{{ order.id }}</td>
+              <td>{{ order.user.first_name }} {{ order.user.last_name }}<br>
+                  <small class="text-muted">@{{ order.user.username }}</small></td>
+              <td>{{ order.food_item.name }}<br>
+                  <small class="text-muted">Qty: {{ order.quantity }}</small></td>
+              <td><small>{{ order.time_slot.slot_name }}</small></td>
+              <td class="fw-bold">₹{{ order.total_price }}</td>
+              <td>
+                {% if order.status == 'Pending' %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% elif order.status == 'Completed' %}
+                  <span class="badge bg-success">Completed</span>
+                {% else %}
+                  <span class="badge bg-danger">Cancelled</span>
+                {% endif %}
+              </td>
+              <td>
+                <form method="POST" action="{% url 'update_order_status' order.id %}" class="d-inline">
+                  {% csrf_token %}
+                  {% if order.status == 'Pending' %}
+                  <button name="status" value="Completed" class="btn btn-success btn-sm">
+                    <i class="bi bi-check2"></i>
+                  </button>
+                  <button name="status" value="Cancelled" class="btn btn-outline-danger btn-sm ms-1">
+                    <i class="bi bi-x"></i>
+                  </button>
+                  {% endif %}
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center text-muted py-4">No orders yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slot Overview -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-0 pt-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-clock-history text-success"></i> Slot Overview
+        </h5>
+      </div>
+      <div class="card-body">
+        {% for slot in all_slots %}
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="small fw-semibold">{{ slot.slot_name }}</span>
+            {% if slot.is_full %}
+              <span class="badge bg-danger slot-badge">Full</span>
+            {% elif slot.is_peak %}
+              <span class="badge bg-warning text-dark slot-badge">High Demand</span>
+            {% else %}
+              <span class="badge bg-success slot-badge">OK</span>
+            {% endif %}
+          </div>
+          {% with pct=slot.current_orders|percentage:slot.max_capacity %}
+          <div class="progress" style="height:10px;">
+            <div class="progress-bar
+                  {% if pct >= 100 %}bg-danger{% elif pct >= 70 %}bg-warning{% else %}bg-success{% endif %}"
+                 style="width:{{ pct }}%;">
+            </div>
+          </div>
+          <small class="text-muted">{{ slot.current_orders }}/{{ slot.max_capacity }} — {{ pct }}%</small>
+          {% endwith %}
+        </div>
+        {% empty %}
+        <p class="text-muted small">No slots configured.</p>
+        {% endfor %}
+
+        <hr>
+        <div class="d-grid gap-2">
+          <a href="{% url 'manage_slots' %}" class="btn btn-outline-success btn-sm">Manage Slots</a>
+          <a href="{% url 'analytics' %}" class="btn btn-outline-primary btn-sm">View Analytics</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stall Revenue Today -->
+    {% if stall_revenue %}
+    <div class="card border-0 shadow-sm rounded-4 mt-3">
+      <div class="card-header bg-white border-0 pt-3">
+        <h5 class="fw-bold mb-0">
+          <i class="bi bi-shop text-success"></i> Revenue by Stall (Today)
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Stall</th>
+              <th>Orders</th>
+              <th>Revenue</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in stall_revenue %}
+            <tr>
+              <td class="fw-semibold">
+                <i class="bi bi-shop-window text-success"></i>
+                {{ row.food_item__stall__name|default:"General" }}
+              </td>
+              <td><span class="badge bg-primary">{{ row.orders }}</span></td>
+              <td class="fw-bold text-success">₹{{ row.revenue }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
